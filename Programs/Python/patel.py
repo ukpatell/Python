@@ -28,7 +28,7 @@ printall(mylist)
 # Problem 3. Write a Python function kalkul(n) to calculate the following summation for non-negative integer values
 # of n:
 
-def problem2():
+def problem3():
     print('\nSolution #3:\nPlease enter the values for the given formula below:\n')
     print('\t\t n     i       n + 1 ')
     print('\t\t Σ  ------- +  ----- ')
@@ -46,7 +46,7 @@ def kalkul(value):
     return round(summation, 2)
 
 
-problem2()
+problem3()
 n = int(input("Enter [non-negative] value for n: "))
 
 while n < 0:  # Input validation
@@ -59,15 +59,25 @@ else:
 
 
 # Problem 4. Write a Python function dsum(n) to calculate the following summation for non-negative integer values of n:
-def problem3():
+def problem4():
     print('\nSolution #4:\nPlease enter the values for the given formula below:\n')
     print('\t\t n    n  ')
     print('\t\t Σ    Σ  3i')
     print('\t\ti=1  j=1\n')
 
-# def dsum(val):
-#     sum_inner =
-problem3()
+
+def dsum(val):
+    sum = 0
+    for x in range(1,val+1):
+        currNum = x
+        for y in range(1,val+1):
+            answer = 3 * currNum
+            sum += answer
+
+    return sum
+
+
+problem4()
 n_3 = int(input("Enter [non-negative] value for n: "))
 
 while n_3 < 0:  # Input validation
