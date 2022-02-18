@@ -10,7 +10,7 @@
 
 import csv
 import random
-import time
+from time import time
 
 import numpy as np
 
@@ -41,7 +41,7 @@ def list_generator(index):
 
     sortedList = sorted(randList)  # Sort the list
 
-    startTime = round(time.time() * 1000)  # Start Time for Binary Search Test
+    startTime = int(time() * 1000)  # Start Time for Binary Search Test
     binary_search(sortedList, low, int(size[index]), key, startTime)
 
     index += 1  # Increase Counter for next size
@@ -53,22 +53,24 @@ def list_generator(index):
 
 # Linear Search
 def linear_search(arr, value):
-    start_time = round(time.time() * 1000)  # Start Time
+    start_time = int(time() * 1000)  # Start Time
     for i in range(len(arr)):
         if arr[i] == value:
-            end_time = round(time.time() * 1000)  # End Time, if found
+            end_time = int(time() * 1000)  # End Time, if found
             Dict['LinearSearch'].append(f'Success. Element {value} found at index {i}')
             Dict['Start1'].append(start_time)
             Dict['End1'].append(end_time)
-            Dict['Total1'].append(end_time - start_time)
+            milliseconds = str(end_time - start_time) + ' ms'
+            Dict['Total1'].append(milliseconds)
             break
 
         if i == len(arr) - 1 and arr[i] != value:  # Break if element not found
-            end_time = round(time.time() * 1000)
+            end_time = int(time() * 1000)
             Dict['LinearSearch'].append(f'Element {value} Not Found')
             Dict['Start1'].append(start_time)
             Dict['End1'].append(end_time)
-            Dict['Total1'].append(end_time - start_time)
+            milliseconds = str(end_time - start_time) + ' ms'
+            Dict['Total1'].append(milliseconds)
             break
 
 
@@ -81,11 +83,12 @@ def binary_search(array, low, high, x, start_time):
 
         # If element is present at the middle itself
         if array[mid] == x:
-            e_time = round(time.time() * 1000)  # End Time, if found
+            e_time = int(time() * 1000)  # End Time, if found
             Dict['BinarySearch'].append(f'Success. Element {x} found at index {mid}')
             Dict[f'Start2'].append(start_time)
             Dict[f'End2'].append(e_time)
-            Dict[f'Total2'].append(e_time - start_time)
+            milliseconds = str(e_time - start_time) + ' ms'
+            Dict[f'Total2'].append(milliseconds)
 
             # If element is smaller than mid, then it can only
         # be present in left subarray
@@ -98,14 +101,16 @@ def binary_search(array, low, high, x, start_time):
 
     else:
         # Element is not present in the array
-        e_time = round(time.time_ns() * 1000)  # End Time, if not found
+        e_time = int(time() * 1000)  # End Time, if not found
         Dict['BinarySearch'].append(f'Element {x} Not Found')
         Dict['Start2'].append(start_time)
         Dict['End2'].append(e_time)
-        Dict['Total2'].append(e_time - start_time)
+        milliseconds = str(e_time - start_time) + ' ms'
+        Dict['Total2'].append(milliseconds)
 
 
 list_generator(0)
+print("Output has been saved as patel_searchtests.csv")
 
 with open("patel_searchtests_output.csv", "w") as f:
     new_val = csv.writer(f)
