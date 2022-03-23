@@ -6,11 +6,13 @@
 # Description   : Perform a series of empirical tests on two different self-balancing search tree implementations,
 #                 counting the number of comparisons and rotations used when adding elements.
 # GitHub        : https://github.com/ukpatell/Python.git
-# Sources       :
+# Sources       : https://github.com/sphinxyun/algorithm-in-python/blob/b69b5641d0457f5dcfe824755d9c302340980114/dataStructure/redBlackTree.py
 from functools import total_ordering
-from colored import fg
 
-color_red = fg('red')
+# Color Prefix
+pref = "\033["
+reset = f'{pref}0m'
+red = "31m"
 
 
 @total_ordering
@@ -45,15 +47,12 @@ class node:
         return self.val is not None
 
     def __str__(self):
-        #        color = 'B' if self.isBlack else 'R'
         val = '-' if self.parent is None else self.parent.val
+        color = 'B' if self.isBlack else 'R'
 
-        if self.isBlack:
-            return f'{self.val}'
-        output = (color_red + self.val)
-        return output
-
-    # return f'{color}-{self.val}'
+        if color == 'R':
+            return f'{pref}{red}{color}-{self.val}' + reset
+        return f'{color}-{self.val}'
 
     def __repr__(self):
         return f'node({self.val},isBlack={self.isBlack})'
@@ -243,5 +242,5 @@ def buildTree(nums, visitor=None):
     return rbtree, nums
 
 
-arr = [45, 30, 64, 36, 95, 38, 76, 34, 50, 1, 200, 85, 52]
+arr = [45, 30, 64, 36, 95, 38, 76, 34, 50, 1, 200, 201, 27, 65, 34]
 buildTree(arr)

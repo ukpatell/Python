@@ -3,7 +3,7 @@
 # Instructor : Professor Eugene
 # Description: Run series of tests to illustrate the big-O efficiency
 #              of linear search and binary search via random numbers
-#              with & without duplicates from (1-100) inclusive
+#              with & without duplicates from (1-SIZE) inclusive
 # GitHub     : https://github.com/ukpatell/Python.git
 # Sources    : Linear Search: https://www.geeksforgeeks.org/python-program-for-linear-search/
 #              Binary Search: https://www.geeksforgeeks.org/python-program-for-binary-search/
@@ -22,7 +22,7 @@ Dict = {'Size': [], 'Low': [], 'High': [], 'Duplicate': [], 'Unique': [],
 
 
 def list_generator(index):
-    size = [1000, 5000, 25000, 75000, 375000, 1875000]  # Different Sizes to be tested
+    size = [1000, 5000, 25000, 75000, 375000, 1875000, 9375000]  # Different Sizes to be tested
     low, high = 1, int(size[index])  # Range: 1 - Size
 
     randList = np.random.randint(low, high, size[index])  # Generate Random List
