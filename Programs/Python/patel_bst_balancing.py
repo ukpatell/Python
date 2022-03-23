@@ -88,18 +88,6 @@ class redBlackTree:
             else:
                 nd = nd.getChild(nd.val > val)
 
-    def getSuccessor(self, nd):
-        if nd:
-            if nd.right:
-                nd = nd.right
-                while nd.left:
-                    nd = nd.left
-                return nd
-            else:
-                while nd.parent is not None and nd.parent.right is nd:
-                    nd = nd.parent
-                return None if nd is self.root else nd.parent
-
     def rotate(self, prt, chd):
         '''rotate prt with the center of chd'''
         if self.root is prt:
@@ -244,3 +232,5 @@ def buildTree(nums, visitor=None):
 
 arr = [45, 30, 64, 36, 95, 38, 76, 34, 50, 1, 200, 201, 27, 65, 34]
 buildTree(arr)
+tree = redBlackTree()
+tree.find(34)
