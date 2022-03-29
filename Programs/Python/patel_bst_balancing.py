@@ -7,7 +7,12 @@
 #                 counting the number of comparisons and rotations used when adding elements.
 # GitHub        : https://github.com/ukpatell/Python.git
 # Sources       : https://github.com/sphinxyun/algorithm-in-python/blob/b69b5641d0457f5dcfe824755d9c302340980114/dataStructure/redBlackTree.py
+import random
 from functools import total_ordering
+from colorama import init, Fore, Back, Style
+
+# Initializes Colorama
+init(autoreset=True)
 
 # Color Prefix
 pref = "\033["
@@ -49,7 +54,6 @@ class node:
     def __str__(self):
         val = '-' if self.parent is None else self.parent.val
         color = 'B' if self.isBlack else 'R'
-
         if color == 'R':
             return f'{pref}{red}{color}-{self.val}' + reset
         return f'{color}-{self.val}'
@@ -221,16 +225,40 @@ class redBlackTree:
 
 def buildTree(nums, visitor=None):
     rbtree = redBlackTree()
-    print(f'build a red-black tree using {nums}')
     for i in nums:
         rbtree.insert(node(i))
-        print(rbtree)
+        # print(rbtree)                        # Enable this so that it will print Red-Black Tree as it is being built
         if visitor:
             visitor(rbtree, i)
+
+    print(rbtree)  # Only prints the final resultant R-B tree
+    print(f'Built Red-Black Tree In this Order({len(nums)} Elements): {nums}')
+    print('Root Value: ',rbtree.root)
     return rbtree, nums
 
+def intro32():
+    print(Style.NORMAL + Back.WHITE + Fore.BLACK + "NOTE:")
+    print(Style.NORMAL + Back.WHITE + Fore.BLACK + "THIS SECTION OF TEST WILL BE CONDUCTING WITH 32 DISTINCT")
+    print(Style.NORMAL + Back.WHITE + Fore.BLACK + "ELEMENTS WHERE THEY WILL BE IN THE FOLLOWING ORDERS:")
+    print(Style.NORMAL + Back.YELLOW + Fore.BLACK + "IN-ORDER,REVERSE-ORDER, RANDOM-ORDER")
+    print(Style.NORMAL + Back.WHITE + Fore.BLACK + "TO PRINT EACH STEP ON HOW TREE IS BUILT")
+    print(Style.NORMAL + Back.WHITE + Fore.BLACK + "UN-COMMENT LINE # 230")
+    print('\n')
 
-arr = [45, 30, 64, 36, 95, 38, 76, 34, 50, 1, 200, 201, 27, 65, 34]
-buildTree(arr)
-tree = redBlackTree()
-tree.find(34)
+# Same data expressed in different order, will impact the overall structure of tree, thus affecting the performance
+inOrderData32 = [1, 6, 12, 15, 18, 20, 26, 27, 31, 35, 37, 38, 40, 41, 42, 43, 51, 53, 54, 55, 63, 64, 66, 67, 68, 69,
+                 70, 72, 76, 80, 82, 83]
+reverseData32 = [83, 82, 80, 76, 72, 70, 69, 68, 67, 66, 64, 63, 55, 54, 53, 51, 43, 42, 41, 40, 38, 37, 35, 31, 27, 26,
+                 20, 18, 15, 12, 6, 1]
+randomData32 = random.sample(inOrderData32, len(inOrderData32))
+intro32()
+
+
+buildTree(inOrderData32)
+print(Style.NORMAL + Back.LIGHTRED_EX + Fore.BLACK + "IN-ORDER")
+buildTree(reverseData32)
+print(Style.NORMAL + Back.LIGHTRED_EX + Fore.BLACK + "REVERSE-ORDER")
+buildTree(randomData32)
+print(Style.NORMAL + Back.LIGHTGREEN_EX + Fore.BLACK + "RANDOM-ORDER")
+
+
