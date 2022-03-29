@@ -75,6 +75,15 @@ def get_height(root):
     return max(leftAns, rightAns) + 1
 
 
+def inorder(root):
+    if not root:
+        return
+
+    inorder(root.left)
+    print(root.val, end=" ")
+    inorder(root.right)
+
+
 class redBlackTree:
     def __init__(self, unique=False):
         '''if unique is True, all node'vals are unique, else there may be equal vals'''
@@ -167,24 +176,6 @@ class redBlackTree:
                 self.rotate(grand, parent)
         self.setBlack(self.root, True)
 
-    def sort(self, reverse=False):
-        ''' return a generator of sorted data'''
-
-        def inOrder(root):
-            if root is None:
-                return
-            if reverse:
-                yield from inOrder(root.right)
-            else:
-                yield from inOrder(root.left)
-            yield root
-            if reverse:
-                yield from inOrder(root.left)
-            else:
-                yield from inOrder(root.right)
-
-        yield from inOrder(self.root)
-
     def display(self):
         def getHeight(nd):
             if nd is None:
@@ -237,19 +228,22 @@ class redBlackTree:
 
 
 # Builds the tree (Function) : Defaults to print, unless specified
-def buildTree(nums, visitor=None,y=1,x=0):
+def buildTree(nums, visitor=None, y=1, x=0, order=0):
     rbtree = redBlackTree()
     for i in nums:
         rbtree.insert(node(i))
-        if x == 1: print(rbtree)            # Enable to print each step
+        if x == 1: print(rbtree)  # Enable to print each step
         # print(rbtree)
         if visitor:
             visitor(rbtree, i)
 
-    if y==1: print(rbtree)                  # Only prints the final resultant R-B tree
+    if y == 1: print(rbtree)  # Only prints the final resultant R-B tree
     print(f'Built Red-Black Tree Using: {nums}')
     print('Root Value                 : ', rbtree.root)
-    print('Height of Binary Tree      : ', get_height(rbtree.root),'\n')
+    print('Height of Binary Tree      : ', get_height(rbtree.root))
+    if order == 1:
+        print('In-Order Traversal         : ')
+        print(inorder(rbtree.root),'\n')  # Only prints in-order traversal if enabled
 
     return rbtree, nums
 
@@ -261,6 +255,8 @@ def intro32():
     print(Style.NORMAL + Back.YELLOW + Fore.BLACK + "IN-ORDER,REVERSE-ORDER, RANDOM-ORDER")
     print(Style.NORMAL + Back.WHITE + Fore.BLACK + "TO PRINT EACH STEP ON HOW TREE IS BUILT")
     print(Style.NORMAL + Back.WHITE + Fore.BLACK + "PLEASE ENTER X = 1 WHEN CALLING FUNCTION")
+    print(Style.NORMAL + Back.WHITE + Fore.BLACK + "PLEASE ENTER order = 1 WHEN CALLING FUNCTION")
+    print(Style.NORMAL + Back.WHITE + Fore.BLACK + "TO PRINT IN-ORDER TRAVERSAL")
     print('\n')
 
 
@@ -273,6 +269,8 @@ def intro256():
     print(Style.NORMAL + Back.WHITE + Fore.BLACK + "TO PRINT EACH STEP ON HOW TREE IS BUILT")
     print(Style.NORMAL + Back.WHITE + Fore.BLACK + "PLEASE ENTER X = 1 WHEN CALLING FUNCTION")
     print(Style.NORMAL + Back.WHITE + Fore.BLACK + "NOT PRINTING OUTPUT BECAUSE OF LENGTH")
+    print(Style.NORMAL + Back.WHITE + Fore.BLACK + "PLEASE ENTER order = 1 WHEN CALLING FUNCTION")
+    print(Style.NORMAL + Back.WHITE + Fore.BLACK + "TO PRINT IN-ORDER TRAVERSAL")
 
     print('\n')
 
@@ -282,6 +280,7 @@ def intro256():
 
 # Include x = 1 in the buildtree() function to print construction of tree
 # Include y = 0 in the buildtree() function to avoid printing for length or other purpose(s)
+# Include order = 1 in the buildtree() function to print in-order traversal of the tree
 
 inOrderData32 = [1, 6, 12, 15, 18, 20, 26, 27, 31, 35, 37, 38, 40, 41, 42, 43, 51, 53, 54, 55, 63, 64, 66, 67, 68, 69,
                  70, 72, 76, 80, 82, 83]
@@ -330,9 +329,9 @@ randomData256 = random.sample(inOrderData256, len(inOrderData256))
 
 intro256()
 
-buildTree(inOrderData256,y=0)
+buildTree(inOrderData256, y=0,order=1)
 print(Style.NORMAL + Back.LIGHTRED_EX + Fore.BLACK + "IN-ORDER")
-buildTree(reverseData256,y=0)
+buildTree(reverseData256, y=0,order=1)
 print(Style.NORMAL + Back.LIGHTRED_EX + Fore.BLACK + "REVERSE-ORDER")
-buildTree(randomData256,y=0)
+buildTree(randomData256, y=0,order=1)
 print(Style.NORMAL + Back.LIGHTGREEN_EX + Fore.BLACK + "RANDOM-ORDER")
