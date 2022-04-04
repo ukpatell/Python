@@ -239,8 +239,11 @@ def buildTree(nums, visitor=None):
         print(rbtree)
         if visitor:
             visitor(rbtree, i)
-    return rbtree, nums
+    return rbtree
 
 
-arr = [45, 30, 64, 36, 95, 38, 76, 34, 50, 1, 200, 201, 27, 65, 34]
-buildTree(arr)
+arr = [45, 30, 64, 36, 95, 38, 76, 34, 50, 1, 200, 201, 27, 65, 34,56]
+tree = buildTree(arr)
+outNum = tree.find(2000)
+print(outNum)
+
