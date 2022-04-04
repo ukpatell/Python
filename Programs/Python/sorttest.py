@@ -17,18 +17,21 @@ MAX_SIZE = 1024
 TRIALS = 20
 
 # global variable used to count steps
-step_count = 0
+comp_count = 0
+swap_count = 0
 
 
 def bubble_sort(list):
     # step_count must be declared global here
     # otherwise it would create a new variable
-    global step_count
+    global comp_count
+    global swap_count
 
     for i in range(len(list) - 1):
         for j in range(0, len(list) - i - 1):
-            step_count += 1
+            comp_count += 1
             if list[j] > list[j + 1]:
+                swap_count += 1
                 list[j], list[j + 1] = list[j + 1], list[j]
 
 
@@ -45,7 +48,8 @@ def console_log(message):
 
 
 def main():
-    global step_count
+    global comp_count
+    global swap_count
 
     with open(generate_filename(), mode='w') as output_file:
         output_writer = csv.writer(output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -53,13 +57,14 @@ def main():
         output_writer.writerow(['algorithm', 'MIN_SIZE', 'MAX_SIZE', 'TRIALS'])
         output_writer.writerow(['bubble_sort', MIN_SIZE, MAX_SIZE, TRIALS])
         output_writer.writerow([])
-        output_writer.writerow(['size', 'avg_time', 'avg_steps'])
+        output_writer.writerow(['size', 'avg_time', 'avg_comps','avg_swaps' ])
 
         size = MIN_SIZE
         while size <= MAX_SIZE:
 
             sort_time = 0
-            sort_steps = 0
+            sort_comps = 0
+            sort_swaps = 0
 
             for t in range(TRIALS):
                 # create a list of size elements with values ranging 0..2*size
@@ -67,16 +72,18 @@ def main():
 
                 # record time & reset step_count before sorting
                 before_time = datetime.now()
-                step_count = 0
+                comp_count = 0
+                swap_count = 0
 
                 bubble_sort(list)
 
                 # calculate & record elapsed time & steps
                 sort_time += (datetime.now() - before_time).microseconds
-                sort_steps += step_count
+                sort_comps += comp_count
+                sort_swaps += swap_count
 
             console_log(f"size: {size}")
-            output_writer.writerow([size, sort_time / TRIALS, sort_steps // TRIALS])
+            output_writer.writerow([size, sort_time / TRIALS, sort_comps // TRIALS, sort_swaps // TRIALS])
             size *= 2
 
 
