@@ -1,4 +1,5 @@
 """
+# CISC 233 LAB 3 Self-Balancing Binary Search Trees
 # Author        : Umangkumar Patel
 # Date Created  : April 4, 2022,
 # Date Modified : April 5, 2022,
@@ -7,11 +8,267 @@
 #                 counting the number of comparisons and rotations used when adding elements.
 # GitHub        : https://github.com/ukpatell/Python.git
 # Sources       : https://github.com/davidtweinberger/avl_tree/blob/master/tree.py
+                  https://github.com/sphinxyun/algorithm-in-python/blob/b69b5641d0457f5dcfe824755d9c302340980114/dataStructure/redBlackTree.py
+# Important Note:
+#                 This file contains (modified) implementation from "patel_bst_balancing.py" OR lab1 task in order to compare the rotation
+#                 counts between AVL Tree and Red-Black Tree. It displays on 32 SIZE tree as per requirement from Lab Task #2
 """
 import random
+from functools import total_ordering
+from colorama import init, Fore, Back, Style
+
+# Initializes Colorama
+init(autoreset=True)
+
+# Color Prefix
+pref = "\033["
+reset = f'{pref}0m'
+red = "31m"
 
 SIZE = [32, 256, 1024, 2048]
-ROTATE_COUNT = 0
+
+# Rotate Counts based independently
+COUNTER = 0  # AVL Counter
+R_COUNTER = 0  # Red Tree Counter
+ROTATE = [0, 0, 0, 0]  # AVL Rotator
+R_ROTATE = [0, 0, 0, 0]  # Red Tree Rotator
+
+"""
+Red Tree Implementation
+"""
+
+
+@total_ordering
+class node:
+    def __init__(self, val, left=None, right=None, isBlack=False):
+        self.val = val
+        self.left = left
+        self.right = right
+        self.parent = None
+        self.isBlack = isBlack
+
+    def __lt__(self, nd):
+        return self.val < nd.val
+
+    def __eq__(self, nd):
+        return nd is not None and self.val == nd.val
+
+    def setChild(self, nd, isLeft):
+        if isLeft:
+            self.left = nd
+        else:
+            self.right = nd
+        if nd is not None: nd.parent = self
+
+    def getChild(self, isLeft):
+        if isLeft:
+            return self.left
+        else:
+            return self.right
+
+    def __bool__(self):
+        return self.val is not None
+
+    def __str__(self):
+        val = '-' if self.parent is None else self.parent.val
+        color = 'B' if self.isBlack else 'R'
+        if color == 'R':
+            return f'{pref}{red}{color}-{self.val}' + reset
+        return f'{color}-{self.val}'
+
+    def __repr__(self):
+        return f'node({self.val},isBlack={self.isBlack})'
+
+
+def get_height(root):
+    # Check if the binary tree is empty
+    if root is None:
+        # If TRUE return 0
+        return 0
+        # Recursively call height of each node
+    leftAns = get_height(root.left)
+    rightAns = get_height(root.right)
+
+    # Return max(leftHeight, rightHeight) at each iteration
+    return max(leftAns, rightAns) + 1
+
+
+def inorder(root):
+    if not root:
+        return
+
+    inorder(root.left)
+    print(root.val, end=" ")
+    inorder(root.right)
+
+
+class redBlackTree:
+    def __init__(self, unique=False):
+        '''if unique is True, all node'vals are unique, else there may be equal vals'''
+        self.root = None
+        self.unique = unique
+
+    @staticmethod
+    def checkBlack(nd):
+        return nd is None or nd.isBlack
+
+    @staticmethod
+    def setBlack(nd, isBlack):
+        if nd is not None:
+            if isBlack is None or isBlack:
+                nd.isBlack = True
+            else:
+                nd.isBlack = False
+
+    def setRoot(self, nd):
+        if nd is not None: nd.parent = None
+        self.root = nd
+
+    def find(self, val):
+        nd = self.root
+        while nd:
+            if nd.val == val:
+                return nd
+            else:
+                nd = nd.getChild(nd.val > val)
+
+    def rotate(self, prt, chd):
+        '''rotate prt with the center of chd'''
+        counter(r=1)
+        if self.root is prt:
+            self.setRoot(chd)
+        else:
+            prt.parent.setChild(chd, prt.parent.left is prt)
+        isLeftChd = prt.left is chd
+        prt.setChild(chd.getChild(not isLeftChd), isLeftChd)
+        chd.setChild(prt, not isLeftChd)
+
+    def insert(self, nd):
+        if nd.isBlack: nd.isBlack = False
+
+        if self.root is None:
+            self.setRoot(nd)
+            self.root.isBlack = True
+        else:
+            parent = self.root
+            while parent:
+                if parent == nd: return None
+                isLeft = parent > nd
+                chd = parent.getChild(isLeft)
+                if chd is None:
+                    parent.setChild(nd, isLeft)
+                    break
+                else:
+                    parent = chd
+            self.fixUpInsert(parent, nd)
+
+    def fixUpInsert(self, parent, nd):
+        ''' adjust color and level,  there are two red nodes: the new one and its parent'''
+        while not self.checkBlack(parent):
+            grand = parent.parent
+            isLeftPrt = grand.left is parent
+            uncle = grand.getChild(not isLeftPrt)
+            if not self.checkBlack(uncle):
+                # case 1:  new node's uncle is red
+                self.setBlack(grand, False)
+                self.setBlack(grand.left, True)
+                self.setBlack(grand.right, True)
+                nd = grand
+                parent = nd.parent
+            else:
+                # case 2: new node's uncle is black(including nil leaf)
+                isLeftNode = parent.left is nd
+                if isLeftNode ^ isLeftPrt:
+                    # case 2.1 the new node is inserted in left-right or right-left form
+                    #         grand               grand
+                    #     parent        or            parent
+                    #          nd                   nd
+                    self.rotate(parent, nd)  # parent rotate
+                    nd, parent = parent, nd
+                # case 3  (case 2.2) the new node is inserted in left-left or right-right form
+                #         grand               grand
+                #      parent        or            parent
+                #     nd                                nd
+
+                self.setBlack(grand, False)
+                self.setBlack(parent, True)
+                self.rotate(grand, parent)
+        self.setBlack(self.root, True)
+
+    def display(self):
+        def getHeight(nd):
+            if nd is None:
+                return 0
+            return max(getHeight(nd.left), getHeight(nd.right)) + 1
+
+        def levelVisit(root):
+            from collections import deque
+            lst = deque([root])
+            level = []
+            h = getHeight(root)
+            ct = lv = 0
+            while 1:
+                ct += 1
+                nd = lst.popleft()
+                if ct >= 2 ** lv:
+                    lv += 1
+                    if lv > h: break
+                    level.append([])
+                level[-1].append(str(nd))
+                if nd is not None:
+                    lst += [nd.left, nd.right]
+                else:
+                    lst += [None, None]
+            return level
+
+        def addBlank(lines):
+            width = 1 + len(str(self.root))
+            sep = ' ' * width
+            n = len(lines)
+            for i, oneline in enumerate(lines):
+                k = 2 ** (n - i) - 1
+                new = [sep * ((k - 1) // 2)]
+                for s in oneline:
+                    new.append(s.ljust(width))
+                    new.append(sep * k)
+                lines[i] = new
+            return lines
+
+        lines = levelVisit(self.root)
+        lines = addBlank(lines)
+        li = [''.join(line) for line in lines]
+        length = 10 if li == [] else max(len(i) for i in li) // 2
+        begin = '\n' + 'red-black-tree'.rjust(length + 14, '-') + '-' * length
+        end = '-' * (length * 2 + 14) + '\n'
+        return '\n'.join([begin, *li, end])
+
+    def __str__(self):
+        return self.display()
+
+
+# Builds the tree (Function) : Defaults to print, unless specified
+def buildTree(nums, visitor=None, y=1, x=0, order=0):
+    global R_COUNTER
+    rbtree = redBlackTree()
+    for i in nums:
+        rbtree.insert(node(i))
+        if x == 1: print(rbtree)  # Enable to print each step
+        # print(rbtree)
+        if visitor:
+            visitor(rbtree, i)
+
+    if y == 1: print(rbtree)  # Only prints the final resultant R-B tree
+    if order == 1:
+        print('In-Order Traversal         : ')
+        print(inorder(rbtree.root), '\n')  # Only prints in-order traversal if enabled
+
+    R_COUNTER += 1
+    return rbtree, nums
+
+
+"""
+AVL Tree Implementation
+"""
 
 
 class AVL_tree:
@@ -40,57 +297,49 @@ class AVL_tree:
         self._max_chars = None
         return
 
-        # def __str__(self):
-        #     """
-        #     Traverses and prints the binary tree in an organized and pretty way.
-        #     Uses a BFS (level-order) traversal.
-        #     """
-        #     global ROTATE_COUNT
-        #     self.synchronizeFields()
-        #     if self._depth == 0:
-        #         return ""
-        #     s = ""
-        #     queue = []
-        #     level = 0
-        #     queue.append((1, self._root))
-        #     while len(queue):
-        #         nodelev, node = queue.pop(0)
-        #         if (not node):
-        #             if (self._depth - nodelev + 1) <= 0:
-        #                 continue
-        #             if nodelev != level:
-        #                 s += "\n"
-        #                 s += " " * int(self._max_chars * (2 ** (self._depth - nodelev) - 1))
-        #                 level = nodelev
-        #             s += " " * self._max_chars * (2 ** (self._depth - nodelev + 1) - 1)
-        #             s += " " * self._max_chars
-        #             queue.append((nodelev + 1, None))
-        #             queue.append((nodelev + 1, None))
-        #             continue
-        #         if nodelev != level:
-        #             s += "\n"
-        #             s += " " * self._max_chars * (2 ** (self._depth - nodelev) - 1)
-        #             level = nodelev
-        #         for i in range(int(self._max_chars - len(str(node.data)))):
-        #             s += " "
-        #         s += str(node.data)
-        #         s += " " * self._max_chars * (2 ** (self._depth - nodelev + 1) - 1)
-        #         if node.left:
-        #             queue.append((nodelev + 1, node.left))
-        #         else:
-        #             queue.append((nodelev + 1, None))
-        #         if node.right:
-        #             queue.append((nodelev + 1, node.right))
-        #         else:
-        #             queue.append((nodelev + 1, None))
-        #     s += "\n"
-        #     order = ['Random-Order\n','In-Order\n','Reverse-Order\n']
-        #
-        #     # s += "Algorithm       : AVL Tree"
-        #     # s += "Data Size       : " + str(s) + "\n"
-        #     # s += "Insertion Order : " + order[i]
-        #     # s += "Rotation  Count : " + str(ROTATE_COUNT)
-        #     # s += "\n"
+    def __str__(self):
+        """
+        Traverses and prints the binary tree in an organized and pretty way.
+        Uses a BFS (level-order) traversal.
+        """
+        self.synchronizeFields()
+        if self._depth == 0:
+            return ""
+        s = ""
+        queue = []
+        level = 0
+        queue.append((1, self._root))
+        while len(queue):
+            nodelev, node = queue.pop(0)
+            if (not node):
+                if (self._depth - nodelev + 1) <= 0:
+                    continue
+                if nodelev != level:
+                    s += "\n"
+                    s += " " * int(self._max_chars * (2 ** (self._depth - nodelev) - 1))
+                    level = nodelev
+                s += " " * self._max_chars * (2 ** (self._depth - nodelev + 1) - 1)
+                s += " " * self._max_chars
+                queue.append((nodelev + 1, None))
+                queue.append((nodelev + 1, None))
+                continue
+            if nodelev != level:
+                s += "\n"
+                s += " " * self._max_chars * (2 ** (self._depth - nodelev) - 1)
+                level = nodelev
+            for i in range(int(self._max_chars - len(str(node.data)))):
+                s += " "
+            s += str(node.data)
+            s += " " * self._max_chars * (2 ** (self._depth - nodelev + 1) - 1)
+            if node.left:
+                queue.append((nodelev + 1, node.left))
+            else:
+                queue.append((nodelev + 1, None))
+            if node.right:
+                queue.append((nodelev + 1, node.right))
+            else:
+                queue.append((nodelev + 1, None))
+        s += "\n\n"
         return s
 
     def synchronizeFields(self):
@@ -144,9 +393,7 @@ class AVL_tree:
         """
         Builds the tree by inserting elements from a list in order.
         """
-        global ROTATE_COUNT
-        ROTATE_COUNT = 0
-
+        global COUNTER
         if l is None:
             return
         try:
@@ -155,13 +402,16 @@ class AVL_tree:
         except TypeError:
             return
 
+        COUNTER += 1
+        return
+
     def insert(self, data):
         """
         This is the external insert method for the data structure.
         Args:
             data: a data object to be inserted into the tree
         """
-        if data == None:
+        if data is None:
             return
         if not self.getRoot():
             self.setRoot(AVL_tree.AVL_node(data=data))
@@ -212,8 +462,7 @@ class AVL_tree:
     def rotateLeft(self, node):
         # Performs a left rotation.
         # print("rotating left around: " + str(node.data))
-        global ROTATE_COUNT
-        ROTATE_COUNT += 1
+        counter()
         newRootNode = node.right
         node.right = newRootNode.left
         if (newRootNode.left):
@@ -234,8 +483,7 @@ class AVL_tree:
     def rotateRight(self, node):
         # Performs a right rotation.
         # print("rotating right around: " + str(node.data))
-        global ROTATE_COUNT
-        ROTATE_COUNT += 1
+        counter()
         newRootNode = node.left
         node.left = newRootNode.right
         if (newRootNode.right):
@@ -292,68 +540,50 @@ def list_maker(size):
     sort_tree.insertList(inOrderList)
     reve_tree.insertList(reversList)
 
-    # Only display tree(s) on this sizes
-    # 1- Random 2- In-Order 3- Reverse-Orderr
+    buildTree(randomList,y=0)
+    buildTree(inOrderList,y=0)
+    buildTree(reversList,y=0)
+
+    # Only display tree(s) on these sizes
+    # 1- Random 2- In-Order 3- Reverse-Order
     if size == 32:
-        # print(rand_tree, 0, size)
-        # print(sort_tree, 1, size)
-        # print(reve_tree, 2, size)
-        display(rand_tree, 0, size)
-        display(sort_tree, 1, size)
-        display(reve_tree, 2, size)
+        output(0, size)
+        print(rand_tree)
+        output(1, size)
+        print(sort_tree)
+        output(2, size)
+        print(reve_tree)
+
+    else:
+        output(0, size)
+        output(1, size)
+        output(2, size)
 
 
-def display(self, i, s):
-    """
-        Traverses and prints the binary tree in an organized and pretty way.
-        Uses a BFS (level-order) traversal.
-        """
-    global ROTATE_COUNT
-    self.synchronizeFields()
-    if self._depth == 0:
-        return ""
+def counter(r=0):
+    global COUNTER, ROTATE, R_COUNTER, R_ROTATE
+    # Increase Red-Tree Counter
+    if r == 1:
+        R_ROTATE[R_COUNTER] = R_ROTATE[R_COUNTER] + 1
+    ROTATE[COUNTER] = ROTATE[COUNTER] + 1
+
+    if COUNTER == 3 and R_COUNTER == 3:
+        COUNTER, R_COUNTER = 0, 0
+        ROTATE[0], R_ROTATE[0] = 0, 0
+        ROTATE[1], R_ROTATE[1] = 0, 0
+        ROTATE[2], R_ROTATE[2] = 0, 0
+
+
+def output(i, size):
+    global ROTATE, R_ROTATE
+    order = ['Random-Order', 'In-Order', 'Reverse-Order']
     s = ""
-    queue = []
-    level = 0
-    queue.append((1, self._root))
-    while len(queue):
-        nodelev, node = queue.pop(0)
-        if (not node):
-            if (self._depth - nodelev + 1) <= 0:
-                continue
-            if nodelev != level:
-                s += "\n"
-                s += " " * int(self._max_chars * (2 ** (self._depth - nodelev) - 1))
-                level = nodelev
-            s += " " * self._max_chars * (2 ** (self._depth - nodelev + 1) - 1)
-            s += " " * self._max_chars
-            queue.append((nodelev + 1, None))
-            queue.append((nodelev + 1, None))
-            continue
-        if nodelev != level:
-            s += "\n"
-            s += " " * self._max_chars * (2 ** (self._depth - nodelev) - 1)
-            level = nodelev
-        for i in range(int(self._max_chars - len(str(node.data)))):
-            s += " "
-        s += str(node.data)
-        s += " " * self._max_chars * (2 ** (self._depth - nodelev + 1) - 1)
-        if node.left:
-            queue.append((nodelev + 1, node.left))
-        else:
-            queue.append((nodelev + 1, None))
-        if node.right:
-            queue.append((nodelev + 1, node.right))
-        else:
-            queue.append((nodelev + 1, None))
-    s += "\n"
-    order = ['Random-Order\n', 'In-Order\n', 'Reverse-Order\n']
+    s += "Algorithm       : AVL Tree       |||   Red-Black Tree\n"
+    s += "Rotation  Count : " + str(ROTATE[i]) + "           |||   " + str(R_ROTATE[i]) + "\n"
+    s += "Data Size       : " + str(size) + "\n"
+    s += "Insertion Order : " + order[i] + "\n"
 
-    s += "Algorithm       : AVL Tree"
-    s += "Data Size       : " + str(s) + "\n"
-    s += "Insertion Order : " + order[i]
-    s += "Rotation  Count : " + str(ROTATE_COUNT)
-    s += "\n"
+    print(s)
 
 
 def main():
