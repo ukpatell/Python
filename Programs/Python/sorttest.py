@@ -7,7 +7,7 @@
 # Description     : Modify an existing codebase to run a series of tests to illustrate the big-O efficiency
 #                   of bubble_sort, insertion_sort, selection_sort, merge_sort, and quick_sort.
 # GitHub          : https://github.com/ukpatell/Python.git
-# Sources         :
+# Sources         : https://www.guru99.com/selection-sort-algorithm.html
 # Important Note  :
 """
 
@@ -65,6 +65,24 @@ def selectionSort(itemsList):
             itemsList[i] = itemsList[minValueIndex]
             itemsList[minValueIndex] = temp
 
+def insertion_sort(array):
+    global comp_count
+    global swap_count
+    k = 0
+    n = len(array) - 1
+
+    # We start from 1 since the first element is trivially sorted
+    while k + 1 <= n:
+        i = k + 1
+        curr_val = array[i]
+        swap_count += 1
+        while i > 0 and array[i - 1] > curr_val:
+            array[i] = array[i - 1]
+            i = i - 1
+            comp_count += 1
+        array[i] = curr_val
+        k = k + 1
+
 
 def generate_filename():
     filename = STUDENT_LASTNAME + '_'
@@ -76,7 +94,6 @@ def generate_filename():
 def console_log(message):
     if VERBOSE_OUTPUT:
         print(message)
-
 
 def main():
     with open(generate_filename(), mode='w') as output_file:
@@ -185,7 +202,7 @@ def main():
                     comp_count = 0
                     swap_count = 0
 
-                    bubble_sort(list)
+                    insertion_sort(list)
 
                     # calculate & record elapsed time & steps
                     sort_time += (datetime.now() - before_time).microseconds
