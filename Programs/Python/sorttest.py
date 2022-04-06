@@ -1,6 +1,15 @@
-# Original codebase by Rohrbaugh 2021
-# Modifications by: patel
-# Last modified: April 4, 2022
+"""
+# CISC 233 LAB 2 Sorting Methods
+# Original Author : Eugene Rohrbaugh
+# Date Created    : April 4, 2022,
+# Date Modified   : April 6, 2022,
+# Modifications   : Umangkumar Patel
+# Description     : Modify an existing codebase to run a series of tests to illustrate the big-O efficiency
+#                   of bubble_sort, insertion_sort, selection_sort, merge_sort, and quick_sort.
+# GitHub          : https://github.com/ukpatell/Python.git
+# Sources         :
+# Important Note  :
+"""
 
 import csv
 import random
