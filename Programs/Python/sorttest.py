@@ -8,6 +8,8 @@
 #                   of bubble_sort, insertion_sort, selection_sort, merge_sort, and quick_sort.
 # GitHub          : https://github.com/ukpatell/Python.git
 # Sources         : https://www.guru99.com/selection-sort-algorithm.html
+#                   https://stackoverflow.com/questions/37267887/python-3-insertion-sort-comparisons-counter
+#
 # Important Note  :
 """
 
@@ -26,7 +28,7 @@ VERBOSE_OUTPUT = False
 # global constants controlling tests
 MIN_SIZE = 2
 MAX_SIZE = 1024
-TRIALS = 2
+TRIALS = 20
 PERCENT = 0.05
 # global variable used to count steps
 comp_count = 0
@@ -60,10 +62,6 @@ def almost_sort(arr):
     return arr
 
 
-def reverse_sort(arr):
-    pass
-
-
 def bubble_sort(arr):
     # step_count must be declared global here
     # otherwise it would create a new variable
@@ -78,7 +76,7 @@ def bubble_sort(arr):
                 arr[j], arr[j + 1] = arr[j + 1], arr[j]
 
 
-def selectionSort(itemsList):
+def selection_sort(itemsList):
     global comp_count
     global swap_count
 
@@ -119,6 +117,48 @@ def insertion_sort(array):
         k = k + 1
 
 
+def merge_sort(arr):
+    if len(arr) > 1:
+
+        # Finding the mid of the array
+        mid = len(arr) // 2
+
+        # Dividing the array elements
+        L = arr[:mid]
+
+        # into 2 halves
+        R = arr[mid:]
+
+        # Sorting the first half
+        merge_sort(L)
+
+        # Sorting the second half
+        merge_sort(R)
+
+        i = j = k = 0
+
+        # Copy data to temp arrays L[] and R[]
+        while i < len(L) and j < len(R):
+            if L[i] < R[j]:
+                arr[k] = L[i]
+                i += 1
+            else:
+                arr[k] = R[j]
+                j += 1
+            k += 1
+
+        # Checking if any element was left
+        while i < len(L):
+            arr[k] = L[i]
+            i += 1
+            k += 1
+
+        while j < len(R):
+            arr[k] = R[j]
+            j += 1
+            k += 1
+
+
 def generate_filename():
     filename = STUDENT_LASTNAME + '_'
     filename += datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -141,7 +181,7 @@ def main():
             for config in CONFIG:
                 console_log(f"Testing bubble_sort with {TRIALS} trials on arrays sized {MIN_SIZE} to {MAX_SIZE}")
                 output_writer.writerow(['algorithm', 'initial_configuration', 'MIN_SIZE', 'MAX_SIZE', 'TRIALS'])
-                output_writer.writerow(['Bubble Sort', config, MIN_SIZE, MAX_SIZE, TRIALS])
+                output_writer.writerow(['bubble_sort', config, MIN_SIZE, MAX_SIZE, TRIALS])
                 output_writer.writerow(['SIZE', '', 'avg_time', 'avg_comps', 'avg_swaps'])
 
                 size = MIN_SIZE
@@ -203,9 +243,8 @@ def main():
 
             for config in CONFIG:
                 console_log(f"Testing selection sort with {TRIALS} trials on arrays sized {MIN_SIZE} to {MAX_SIZE}")
-                output_writer.writerow([])
                 output_writer.writerow(['Algorithm', 'initial_configuration', 'MIN_SIZE', 'MAX_SIZE', 'TRIALS'])
-                output_writer.writerow(['Selection Sort', config, MIN_SIZE, MAX_SIZE, TRIALS])
+                output_writer.writerow(['selection_sort', config, MIN_SIZE, MAX_SIZE, TRIALS])
                 output_writer.writerow(['SIZE', '', 'avg_time', 'avg_comps', 'avg_swaps'])
 
                 size = MIN_SIZE
@@ -225,7 +264,7 @@ def main():
                             comp_count = 0
                             swap_count = 0
 
-                            selectionSort(list)
+                            selection_sort(list)
                             # calculate & record elapsed time & steps
                             sort_time += (datetime.now() - before_time).microseconds
                             sort_comps += comp_count
@@ -241,7 +280,7 @@ def main():
                             comp_count = 0
                             swap_count = 0
 
-                            selectionSort(new_list)
+                            selection_sort(new_list)
                             # calculate & record elapsed time & steps
                             sort_time += (datetime.now() - before_time).microseconds
                             sort_comps += comp_count
@@ -253,7 +292,7 @@ def main():
                             comp_count = 0
                             swap_count = 0
 
-                            selectionSort(list)
+                            selection_sort(list)
                             # calculate & record elapsed time & steps
                             sort_time += (datetime.now() - before_time).microseconds
                             sort_comps += comp_count
@@ -266,11 +305,9 @@ def main():
             global comp_count, swap_count, CONFIG
 
             for config in CONFIG:
-                output_writer.writerow([])
-                output_writer.writerow([])
                 console_log(f"Testing Insertion Sort with {TRIALS} trials on arrays sized {MIN_SIZE} to {MAX_SIZE}")
                 output_writer.writerow(['Algorithm', 'initial_configuration', 'MIN_SIZE', 'MAX_SIZE', 'TRIALS'])
-                output_writer.writerow(['Insertion Sort', config, MIN_SIZE, MAX_SIZE, TRIALS])
+                output_writer.writerow(['insertion_sort', config, MIN_SIZE, MAX_SIZE, TRIALS])
                 output_writer.writerow([])
                 output_writer.writerow(['SIZE', '', 'avg_time', 'avg_comps', 'avg_swaps'])
 
