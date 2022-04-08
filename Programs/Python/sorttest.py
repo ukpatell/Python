@@ -10,7 +10,7 @@
 # Sources         : https://www.guru99.com/selection-sort-algorithm.html
 #                   https://stackoverflow.com/questions/37267887/python-3-insertion-sort-comparisons-counter
 #                   https://towardsdatascience.com/how-to-implement-merge-sort-algorithm-in-python-4662a89ae48c
-#
+#                   https://www.programiz.com/dsa/shell-sort
 
 
 
@@ -213,6 +213,31 @@ def quick_sort(array, low, high):
         # recursive call on the right of pivot
         quick_sort(array, pi + 1, high)
 
+
+def shell_sort(array):
+    global comp_count, swap_count
+
+    interval = 1        # Using defined formula min size must be greater than 1 at least
+    n = len(array)      # Size of the array
+
+    # Ignoring the comp count to determine the highest interval for accuracy
+    # Calculate the highest possible interval to start with
+    while interval < (n / 3):
+        interval = interval * 3 + 1
+
+    while interval > 0:
+        for i in range(interval, n):
+            temp = array[i]
+            j = i
+
+            comp_count += 2 # 2 comparisons
+            while j >= interval and array[j - interval] > temp:
+                array[j] = array[j - interval]
+                j -= interval
+
+            swap_count += 1
+            array[j] = temp
+        interval = int((interval - 1) / 3)   # Calculate next lowest interval
 
 def generate_filename():
     filename = STUDENT_LASTNAME + '_'
@@ -513,7 +538,6 @@ def main():
 
                             # Selecting the last element as the pivot
                             quick_sort(list, 0, len(list) - 1)
-                            print(list)
                             # calculate & record elapsed time & steps
                             sort_time += (datetime.now() - before_time).microseconds
                             sort_comps += comp_count
@@ -551,13 +575,79 @@ def main():
                     output_writer.writerow([size, '', sort_time / TRIALS, sort_comps // TRIALS, sort_swaps // TRIALS])
                     size *= 2
 
+        def shellsort_manager():
+            global comp_count, swap_count, CONFIG
+
+            for config in CONFIG:
+                console_log(f"Testing Quick Sort with {TRIALS} trials on arrays sized {MIN_SIZE} to {MAX_SIZE}")
+                output_writer.writerow(['Algorithm', 'initial_configuration', 'MIN_SIZE', 'MAX_SIZE', 'TRIALS'])
+                output_writer.writerow(['shell_sort', config, MIN_SIZE, MAX_SIZE, TRIALS])
+                output_writer.writerow([])
+                output_writer.writerow(['SIZE', '', 'avg_time', 'avg_comps', 'avg_swaps'])
+
+                size = MIN_SIZE
+                while size <= MAX_SIZE:
+
+                    sort_time = 0
+                    sort_comps = 0
+                    sort_swaps = 0
+
+                    for t in range(TRIALS):
+                        # create a list of size elements with values ranging 0..2*size
+                        list = random.sample(range(0, int(size * 2)), size)
+
+                        # record time & reset step_count before sorting
+                        if config == 'random':
+                            before_time = datetime.now()
+                            comp_count = 0
+                            swap_count = 0
+
+                            shell_sort(list)
+                            # calculate & record elapsed time & steps
+                            sort_time += (datetime.now() - before_time).microseconds
+                            sort_comps += comp_count
+                            sort_swaps += swap_count
+                        elif config == 'almost-sorted':
+                            # print('Almost Sort...Trial # ', t)
+                            # Sends the list to almost sort
+                            # print('Before Sending Almost Sort...',list)
+                            # Sort the list before starting the time for accuracy
+                            new_list = almost_sort(list)
+                            # print('After Sending Almost Sort...',new_list)
+                            before_time = datetime.now()
+                            comp_count = 0
+                            swap_count = 0
+
+                            shell_sort(new_list)
+                            # calculate & record elapsed time & steps
+                            sort_time += (datetime.now() - before_time).microseconds
+                            sort_comps += comp_count
+                            sort_swaps += swap_count
+                        elif config == 'reverse-sorted':
+                            # Reverse Sort the list
+                            list.sort(reverse=True)
+                            before_time = datetime.now()
+                            comp_count = 0
+                            swap_count = 0
+
+                            shell_sort(list)
+                            # calculate & record elapsed time & steps
+                            sort_time += (datetime.now() - before_time).microseconds
+                            sort_comps += comp_count
+                            sort_swaps += swap_count
+                    console_log(f"size: {size}")
+                    output_writer.writerow([size, '', sort_time / TRIALS, sort_comps // TRIALS, sort_swaps // TRIALS])
+                    size *= 2
+
         bubblesort_manager()
         selectionsort_manager()
         insertionsort_manager()
         mergesort_manager()
         quicksort_manager()
+        shellsort_manager()
 
 
 if __name__ == '__main__':
+    print('Please wait...')
     main()
     print('File saved in your project directory.')
