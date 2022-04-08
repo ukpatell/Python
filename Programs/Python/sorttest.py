@@ -22,11 +22,9 @@
 import csv
 import math
 import random
-import time
 from datetime import datetime
 
 # replace yourlastname with your actual last name here
-import numpy
 
 STUDENT_LASTNAME = 'patel'
 VERBOSE_OUTPUT = False
@@ -169,6 +167,51 @@ def merge(left, right):
     output.extend(right[j:])
 
     return output
+
+
+# function to find the partition position
+def partition(array, low, high):
+    global comp_count, swap_count
+    # choose the rightmost element as pivot
+    pivot = array[high]
+
+    # pointer for greater element
+    i = low - 1
+
+    # traverse through all elements
+    # compare each element with pivot
+    for j in range(low, high):
+        comp_count += 1
+        if array[j] <= pivot:
+            # if element smaller than pivot is found
+            # swap it with the greater element pointed by i
+            i = i + 1
+
+            # swapping element at i with element at j
+            swap_count += 1
+            (array[i], array[j]) = (array[j], array[i])
+
+    # swap the pivot element with the greater element specified by i
+    swap_count += 1
+    (array[i + 1], array[high]) = (array[high], array[i + 1])
+
+    # return the position from where partition is done
+    return i + 1
+
+
+# function to perform quicksort
+def quick_sort(array, low, high):
+    if low < high:
+        # find pivot element such that
+        # element smaller than pivot are on the left
+        # element greater than pivot are on the right
+        pi = partition(array, low, high)
+
+        # recursive call on the left of pivot
+        quick_sort(array, low, pi - 1)
+
+        # recursive call on the right of pivot
+        quick_sort(array, pi + 1, high)
 
 
 def generate_filename():
@@ -441,10 +484,78 @@ def main():
                     output_writer.writerow([size, '', sort_time / TRIALS, sort_comps // TRIALS, sort_swaps // TRIALS])
                     size *= 2
 
+        def quicksort_manager():
+            global comp_count, swap_count, CONFIG
+
+            for config in CONFIG:
+                console_log(f"Testing Quick Sort with {TRIALS} trials on arrays sized {MIN_SIZE} to {MAX_SIZE}")
+                output_writer.writerow(['Algorithm', 'initial_configuration', 'MIN_SIZE', 'MAX_SIZE', 'TRIALS'])
+                output_writer.writerow(['quick_sort', config, MIN_SIZE, MAX_SIZE, TRIALS])
+                output_writer.writerow([])
+                output_writer.writerow(['SIZE', '', 'avg_time', 'avg_comps', 'avg_swaps'])
+
+                size = MIN_SIZE
+                while size <= MAX_SIZE:
+
+                    sort_time = 0
+                    sort_comps = 0
+                    sort_swaps = 0
+
+                    for t in range(TRIALS):
+                        # create a list of size elements with values ranging 0..2*size
+                        list = random.sample(range(0, int(size * 2)), size)
+
+                        # record time & reset step_count before sorting
+                        if config == 'random':
+                            before_time = datetime.now()
+                            comp_count = 0
+                            swap_count = 0
+
+                            # Selecting the last element as the pivot
+                            quick_sort(list, 0, len(list) - 1)
+                            print(list)
+                            # calculate & record elapsed time & steps
+                            sort_time += (datetime.now() - before_time).microseconds
+                            sort_comps += comp_count
+                            sort_swaps += swap_count
+                        elif config == 'almost-sorted':
+                            # print('Almost Sort...Trial # ', t)
+                            # Sends the list to almost sort
+                            # print('Before Sending Almost Sort...',list)
+                            # Sort the list before starting the time for accuracy
+                            new_list = almost_sort(list)
+                            # print('After Sending Almost Sort...',new_list)
+                            before_time = datetime.now()
+                            comp_count = 0
+                            swap_count = 0
+
+                            # Selecting the last element as the pivot
+                            quick_sort(new_list, 0, len(new_list) - 1)
+                            # calculate & record elapsed time & steps
+                            sort_time += (datetime.now() - before_time).microseconds
+                            sort_comps += comp_count
+                            sort_swaps += swap_count
+                        elif config == 'reverse-sorted':
+                            # Reverse Sort the list
+                            list.sort(reverse=True)
+                            before_time = datetime.now()
+                            comp_count = 0
+                            swap_count = 0
+
+                            quick_sort(list, 0, len(list) - 1)
+                            # calculate & record elapsed time & steps
+                            sort_time += (datetime.now() - before_time).microseconds
+                            sort_comps += comp_count
+                            sort_swaps += swap_count
+                    console_log(f"size: {size}")
+                    output_writer.writerow([size, '', sort_time / TRIALS, sort_comps // TRIALS, sort_swaps // TRIALS])
+                    size *= 2
+
         bubblesort_manager()
         selectionsort_manager()
         insertionsort_manager()
         mergesort_manager()
+        quicksort_manager()
 
 
 if __name__ == '__main__':
