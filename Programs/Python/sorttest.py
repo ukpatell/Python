@@ -9,7 +9,13 @@
 # GitHub          : https://github.com/ukpatell/Python.git
 # Sources         : https://www.guru99.com/selection-sort-algorithm.html
 #                   https://stackoverflow.com/questions/37267887/python-3-insertion-sort-comparisons-counter
+#                   https://towardsdatascience.com/how-to-implement-merge-sort-algorithm-in-python-4662a89ae48c
 #
+
+
+
+
+
 # Important Note  :
 """
 
@@ -65,8 +71,7 @@ def almost_sort(arr):
 def bubble_sort(arr):
     # step_count must be declared global here
     # otherwise it would create a new variable
-    global comp_count
-    global swap_count
+    global comp_count, swap_count
 
     for i in range(len(arr) - 1):
         for j in range(0, len(arr) - i - 1):
@@ -117,46 +122,53 @@ def insertion_sort(array):
         k = k + 1
 
 
-def merge_sort(arr):
-    if len(arr) > 1:
+def merge_sort(list):
+    # 1. Store the length of the list
+    list_length = len(list)
 
-        # Finding the mid of the array
-        mid = len(arr) // 2
+    # 2. List with length less than is already sorted
+    if list_length == 1:
+        return list
 
-        # Dividing the array elements
-        L = arr[:mid]
+    # 3. Identify the list midpoint and partition the list into a left_partition and a right_partition
+    mid_point = list_length // 2
 
-        # into 2 halves
-        R = arr[mid:]
+    # 4. To ensure all partitions are broken down into their individual components,
+    # the merge_sort function is called and a partitioned portion of the list is passed as a parameter
+    left_partition = merge_sort(list[:mid_point])
+    right_partition = merge_sort(list[mid_point:])
 
-        # Sorting the first half
-        merge_sort(L)
+    # 5. The merge_sort function returns a list composed of a sorted left and right partition.
+    return merge(left_partition, right_partition)
 
-        # Sorting the second half
-        merge_sort(R)
 
-        i = j = k = 0
+# 6. takes in two lists and returns a sorted list made up of the content within the two lists
+def merge(left, right):
+    global comp_count, swap_count
+    # 7. Initialize an empty list output that will be populated with sorted elements.
+    # Initialize two variables i and j which are used pointers when iterating through the lists.
+    output = []
+    i = j = 0
 
-        # Copy data to temp arrays L[] and R[]
-        while i < len(L) and j < len(R):
-            if L[i] < R[j]:
-                arr[k] = L[i]
-                i += 1
-            else:
-                arr[k] = R[j]
-                j += 1
-            k += 1
-
-        # Checking if any element was left
-        while i < len(L):
-            arr[k] = L[i]
+    # 8. Executes the while loop if both pointers i and j are less than the length of the left and right lists
+    while i < len(left) and j < len(right):
+        # 9. Compare the elements at every position of both lists during each iteration
+        comp_count += 1
+        if left[i] < right[j]:
+            # output is populated with the lesser value
+            swap_count += 1
+            output.append(left[i])
+            # 10. Move pointer to the right
             i += 1
-            k += 1
-
-        while j < len(R):
-            arr[k] = R[j]
+        else:
+            swap_count += 1
+            output.append(right[j])
             j += 1
-            k += 1
+    # 11. The remnant elements are picked from the current pointer value to the end of the respective list
+    output.extend(left[i:])
+    output.extend(right[j:])
+
+    return output
 
 
 def generate_filename():
@@ -365,9 +377,74 @@ def main():
                     output_writer.writerow([size, '', sort_time / TRIALS, sort_comps // TRIALS, sort_swaps // TRIALS])
                     size *= 2
 
+        def mergesort_manager():
+            global comp_count, swap_count, CONFIG
+
+            for config in CONFIG:
+                console_log(f"Testing Insertion Sort with {TRIALS} trials on arrays sized {MIN_SIZE} to {MAX_SIZE}")
+                output_writer.writerow(['Algorithm', 'initial_configuration', 'MIN_SIZE', 'MAX_SIZE', 'TRIALS'])
+                output_writer.writerow(['merge', config, MIN_SIZE, MAX_SIZE, TRIALS])
+                output_writer.writerow([])
+                output_writer.writerow(['SIZE', '', 'avg_time', 'avg_comps', 'avg_swaps'])
+
+                size = MIN_SIZE
+                while size <= MAX_SIZE:
+
+                    sort_time = 0
+                    sort_comps = 0
+                    sort_swaps = 0
+
+                    for t in range(TRIALS):
+                        # create a list of size elements with values ranging 0..2*size
+                        list = random.sample(range(0, int(size * 2)), size)
+
+                        # record time & reset step_count before sorting
+                        if config == 'random':
+                            before_time = datetime.now()
+                            comp_count = 0
+                            swap_count = 0
+
+                            merge_sort(list)
+                            # calculate & record elapsed time & steps
+                            sort_time += (datetime.now() - before_time).microseconds
+                            sort_comps += comp_count
+                            sort_swaps += swap_count
+                        elif config == 'almost-sorted':
+                            # print('Almost Sort...Trial # ', t)
+                            # Sends the list to almost sort
+                            # print('Before Sending Almost Sort...',list)
+                            # Sort the list before starting the time for accuracy
+                            new_list = almost_sort(list)
+                            # print('After Sending Almost Sort...',new_list)
+                            before_time = datetime.now()
+                            comp_count = 0
+                            swap_count = 0
+
+                            merge_sort(new_list)
+                            # calculate & record elapsed time & steps
+                            sort_time += (datetime.now() - before_time).microseconds
+                            sort_comps += comp_count
+                            sort_swaps += swap_count
+                        elif config == 'reverse-sorted':
+                            # Reverse Sort the list
+                            list.sort(reverse=True)
+                            before_time = datetime.now()
+                            comp_count = 0
+                            swap_count = 0
+
+                            merge_sort(list)
+                            # calculate & record elapsed time & steps
+                            sort_time += (datetime.now() - before_time).microseconds
+                            sort_comps += comp_count
+                            sort_swaps += swap_count
+                    console_log(f"size: {size}")
+                    output_writer.writerow([size, '', sort_time / TRIALS, sort_comps // TRIALS, sort_swaps // TRIALS])
+                    size *= 2
+
         bubblesort_manager()
         selectionsort_manager()
         insertionsort_manager()
+        mergesort_manager()
 
 
 if __name__ == '__main__':
