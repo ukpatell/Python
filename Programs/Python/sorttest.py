@@ -10,13 +10,8 @@
 # Sources         : https://www.guru99.com/selection-sort-algorithm.html
 #                   https://stackoverflow.com/questions/37267887/python-3-insertion-sort-comparisons-counter
 #                   https://towardsdatascience.com/how-to-implement-merge-sort-algorithm-in-python-4662a89ae48c
+#                   https://www.geeksforgeeks.org/python-program-for-quicksort/
 #                   https://www.programiz.com/dsa/shell-sort
-
-
-
-
-
-# Important Note  :
 """
 
 import csv
@@ -217,8 +212,8 @@ def quick_sort(array, low, high):
 def shell_sort(array):
     global comp_count, swap_count
 
-    interval = 1        # Using defined formula min size must be greater than 1 at least
-    n = len(array)      # Size of the array
+    interval = 1  # Using defined formula min size must be greater than 1 at least
+    n = len(array)  # Size of the array
 
     # Ignoring the comp count to determine the highest interval for accuracy
     # Calculate the highest possible interval to start with
@@ -230,14 +225,15 @@ def shell_sort(array):
             temp = array[i]
             j = i
 
-            comp_count += 2 # 2 comparisons
+            comp_count += 2  # 2 comparisons
             while j >= interval and array[j - interval] > temp:
                 array[j] = array[j - interval]
                 j -= interval
 
             swap_count += 1
             array[j] = temp
-        interval = int((interval - 1) / 3)   # Calculate next lowest interval
+        interval = int((interval - 1) / 3)  # Calculate next lowest interval
+
 
 def generate_filename():
     filename = STUDENT_LASTNAME + '_'
